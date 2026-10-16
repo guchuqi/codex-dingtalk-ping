@@ -10,3 +10,5 @@ This is a public Codex Skill source repository. When the user shares https://git
 6. Include the full private-terminal `install.py --configure` and real-send `notify.py --test` commands, plus instructions to restart local Codex. Distinguish installed vs credentials configured vs successfully tested; never claim to have sent a message without a successful real send.
 
 Skill installation, local trigger setup, and DingTalk credential setup are separate stages. Pure Codex Cloud tasks cannot execute this user's local notifier.
+
+For Mac approval-alert prototyping only: follow `skills/codex-dingtalk-ping/references/MACOS_APPROVAL_PROBE.md`. Run the read-only probe from an independent Terminal before creating a real Codex approval. Do not claim this experimental probe sends DingTalk messages, and never enable it as a launch agent during testing.
