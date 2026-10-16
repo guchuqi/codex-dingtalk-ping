@@ -25,18 +25,17 @@ python3 "${CODEX_HOME:-$HOME/.codex}/skills/codex-dingtalk-ping/scripts/install.
 
 The command registers Codex's task-end notification trigger and safely preserves unrelated existing settings. **It intentionally does not ask for credentials from a noninteractive agent shell.**
 
-## After installation: configure your DingTalk robot / 安装后配置指引
+## After installation: how to get DingTalk credentials / 安装后钉钉配置指引
 
-**Codex must proactively explain these steps after installation.** This Skill supports existing legacy custom **group** robots, not enterprise application robots. DingTalk has announced that new legacy custom robots are no longer available; see the [official notice](https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice).
+**Codex must proactively show these steps immediately after installation** — installing the Skill is not the same as configuring a robot.
 
-1. 在钉钉电脑端打开接收通知的群 → **群设置 → 智能群助手 / 机器人** → 找到已有的**自定义机器人** → 机器人设置 / 详情。
-2. 在机器人详情中复制完整 **Webhook**，格式为 `https://oapi.dingtalk.com/robot/send?access_token=...`。这是私密信息，不能发到 Codex 聊天或公开仓库。
-3. 在同一个机器人的 **安全设置 → 加签** 中，复制 `SEC...` **密钥**（只有开启加签时才需要）；如果启用了**自定义关键词**，记下其中一个已经设置的关键词。不要把企业应用的 AppSecret 当作加签密钥。
-4. 在自己的私密本地终端运行下一节的 `install.py --configure`，然后执行 `notify.py --test`。确认群内收到消息后，重新开启本地 Codex 会话验证自动通知。
+1. **确认机器人类型。** 本项目使用旧版 **钉钉群自定义机器人** Webhook；不支持企业内部应用机器人的 AppKey/AppSecret 或单聊 API。**钉钉已公告停止新增旧版自定义机器人，已有机器人不受该次调整影响。** 如果找不到新建入口，不能直接用企业机器人替代。请查阅[官方下线公告](https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice)。
+2. **进入群机器人设置。** 在钉钉电脑端打开目标群 → **群设置 → 智能群助手 / 机器人** → 找到已有的**自定义机器人** → 设置或详情。入口会随客户端版本有所变化；旧版创建步骤可参考[钉钉官方自定义机器人文档](https://open.dingtalk.com/document/orgapp/custom-robot-access)。
+3. **复制 Webhook。** 在机器人详情里复制完整的 `https://oapi.dingtalk.com/robot/send?access_token=...`，不要仅复制 `access_token`，不要分享给 Codex 聊天或提交到公开仓库。
+4. **查看密钥与关键词。** 在**安全设置 → 加签**中复制以 `SEC...` 开头的**加签密钥**（仅开启加签时需要）；若启用了**自定义关键词**，记下其中一个已配置关键词（如 `Codex`）。`SEC...` 不是企业应用的 `AppSecret`。未启用相应安全项时留空。
+5. **本地私密录入并测试。** 使用下一节的 `install.py --configure` 命令；然后运行 `notify.py --test`，在钉钉群确认收到消息，再开启新的本地 Codex 会话进行自动通知验证。
 
-官方参考：[自定义机器人说明](https://open.dingtalk.com/document/orgapp/custom-robot-access) · [旧版机器人下线公告](https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice)。
-
-完整操作流程见 [DINGTALK_SETUP.md](skills/codex-dingtalk-ping/references/DINGTALK_SETUP.md)。
+详细图文入口及注意事项：[**DingTalk 机器人配置完整指南**](skills/codex-dingtalk-ping/references/DINGTALK_SETUP.md)。钉钉[创建安装官方说明（历史教程）](https://open.dingtalk.com/document/orgapp/custom-bot-creation-and-installation)也可对照阅读。
 
 ## One-time private DingTalk setup / 首次配置 Webhook
 
@@ -88,6 +87,21 @@ python3 "${CODEX_HOME:-$HOME/.codex}/skills/codex-dingtalk-ping/scripts/install.
 Review/trust the new hook with `/hooks`, then restart Codex. Do **not** run both this project's `notify` and `Stop` hook for the same task, or duplicate messages may occur.
 
 The installer never commits credentials into this repository. Do not store them in Git, Codex chat, or a project file.
+
+## Experimental macOS Desktop approval probe / macOS 审批检测实机验证
+
+针对 **Codex 桌面 App（macOS）**，新增一个**只读辅助功能检测探针**，用于验证“审批出现 → 5 秒仍未操作 → 审批按钮消失”这三个信号。此工具**不发送钉钉、不自动安装、不修改 Codex 设置**，尚须在真实 Codex App 上验证是否能观察后台/未选中会话的审批卡片。
+
+先在独立的 macOS 终端运行（需 Apple Xcode Command Line Tools）：
+
+```bash
+sh skills/codex-dingtalk-ping/scripts/run-approval-probe.sh --self-test
+sh skills/codex-dingtalk-ping/scripts/run-approval-probe.sh --watch
+```
+
+首次运行编译为 `~/.local/bin/codex-approval-probe`。macOS 可能需要你在 **系统设置 → 隐私与安全性 → 辅助功能** 中手动授权终端或探针。然后在 **另一个 Codex App 会话**触发真实审批，保留 5 秒再点击批准/拒绝，观察终端中 `approval_detected`、`approval_pending_5s`、`approval_cleared` 事件。5 秒内处理时不应出现超时事件。按 `Ctrl+C` 停止，不会留下常驻程序。
+
+详细验收步骤、调试命令和已知局限：[**macOS 审批探针实机测试说明**](skills/codex-dingtalk-ping/references/MACOS_APPROVAL_PROBE.md)。这不是已经完成的审批通知功能，请勿混同现有“任务轮次结束通知”。
 
 ## Tests / 开发测试
 
