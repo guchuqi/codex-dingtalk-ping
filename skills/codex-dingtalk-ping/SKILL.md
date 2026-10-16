@@ -16,6 +16,10 @@ Send a short completion-of-turn message to a DingTalk custom **group** robot, us
 5. Have the user start a **new local Codex session** and complete a turn; verify the robot receives a message. If test messages arrive but automatic ones do not, inspect the trigger and client support, not the Webhook.
 6. If a local client does not fire `notify`, offer `install.py --method hook --no-prompt` as an alternative, requiring user trust via Codex `/hooks`. Use exactly one trigger to avoid duplicates. Do not overwrite an unrelated existing notification command.
 
+## Mandatory post-install explanation
+
+**After every installation attempt, Codex MUST proactively explain** (in the user's language, not just by linking README): (1) only existing legacy DingTalk custom *group* robots are supported, not enterprise application robots; (2) open target DingTalk group → Group settings → Robot / Smart group assistant → existing Custom robot → Settings and copy the *complete* `https://oapi.dingtalk.com/robot/send?access_token=...` Webhook; (3) under the same robot's Security Settings, copy the optional signing secret starting with `SEC...` if signing is enabled, and use one preconfigured security keyword if keyword validation is enabled; (4) show the private local `install.py --configure` command followed by `notify.py --test`, and restart the local Codex session; (5) distinguish Skill installed / trigger installed / credentials configured / message successfully tested. **Never solicit secrets in chat.** Cite the official [custom robot guide](https://open.dingtalk.com/document/orgapp/custom-robot-access) and [legacy robot retirement notice](https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice); new legacy bots are no longer generally available. Follow [references/DINGTALK_SETUP.md](references/DINGTALK_SETUP.md). Do not omit these instructions even when the user provides only the GitHub link.
+
 See the repository [README](../../README.md) for complete human-facing instructions.
 
 ## Safety and event contract
