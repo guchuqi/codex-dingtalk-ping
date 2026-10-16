@@ -20,6 +20,17 @@ class PublicInstallTests(unittest.TestCase):
         self.assertTrue((SKILL / 'agents' / 'openai.yaml').is_file())
         self.assertTrue((SKILL / 'scripts' / 'install.py').is_file())
         self.assertTrue((SKILL / 'scripts' / 'notify.py').is_file())
+        self.assertTrue((SKILL / 'references' / 'DINGTALK_SETUP.md').is_file())
+
+    def test_public_guide_and_agent_instructions(self):
+        agent = (ROOT / 'AGENTS.md').read_text(encoding='utf-8')
+        skill = (SKILL / 'SKILL.md').read_text(encoding='utf-8')
+        guide = (SKILL / 'references' / 'DINGTALK_SETUP.md').read_text(encoding='utf-8')
+        self.assertIn('Mandatory final user guidance', agent)
+        self.assertIn('Mandatory post-install explanation', skill)
+        self.assertIn('custom-robot-access', guide)
+        self.assertIn('webhook-bot-offline-notice', guide)
+        self.assertIn('SEC...', guide)
 
     def test_agent_can_register_without_secrets_or_tty(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -38,6 +49,8 @@ class PublicInstallTests(unittest.TestCase):
             self.assertIn('model = "test"', config)
             self.assertFalse((codex / 'codex-dingtalk-ping.json').exists())
             self.assertIn('Webhook 尚未配置', result.stdout)
+            self.assertIn('安装后必读：钉钉机器人配置指引', result.stdout)
+            self.assertIn('SEC...', result.stdout)
             again = subprocess.run([sys.executable, str(dest / 'scripts/install.py'), '--no-prompt'],
                                    stdin=subprocess.DEVNULL, text=True, capture_output=True, env=env)
             self.assertEqual(again.returncode, 0, again.stderr)
