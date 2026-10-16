@@ -16,11 +16,25 @@ Send a short completion-of-turn message to a DingTalk custom **group** robot, us
 5. Have the user start a **new local Codex session** and complete a turn; verify the robot receives a message. If test messages arrive but automatic ones do not, inspect the trigger and client support, not the Webhook.
 6. If a local client does not fire `notify`, offer `install.py --method hook --no-prompt` as an alternative, requiring user trust via Codex `/hooks`. Use exactly one trigger to avoid duplicates. Do not overwrite an unrelated existing notification command.
 
-## Mandatory post-install explanation
+## Mandatory post-install user guidance
 
-**After every installation attempt, Codex MUST proactively explain** (in the user's language, not just by linking README): (1) only existing legacy DingTalk custom *group* robots are supported, not enterprise application robots; (2) open target DingTalk group → Group settings → Robot / Smart group assistant → existing Custom robot → Settings and copy the *complete* `https://oapi.dingtalk.com/robot/send?access_token=...` Webhook; (3) under the same robot's Security Settings, copy the optional signing secret starting with `SEC...` if signing is enabled, and use one preconfigured security keyword if keyword validation is enabled; (4) show the private local `install.py --configure` command followed by `notify.py --test`, and restart the local Codex session; (5) distinguish Skill installed / trigger installed / credentials configured / message successfully tested. **Never solicit secrets in chat.** Cite the official [custom robot guide](https://open.dingtalk.com/document/orgapp/custom-robot-access) and [legacy robot retirement notice](https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice); new legacy bots are no longer generally available. Follow [references/DINGTALK_SETUP.md](references/DINGTALK_SETUP.md). Do not omit these instructions even when the user provides only the GitHub link.
+After **every installation or setup attempt**, regardless of whether credentials already exist, **include a short, human-readable DingTalk setup guide in the final reply**. Do not merely say "see README" or leave these details buried in installer output:
+
+1. Identify the supported bot as a **legacy custom group robot** and mention DingTalk's [official legacy-robot retirement notice](https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice). Existing compatible Webhooks work; new bot creation may not be available. Enterprise app robots are not interchangeable.
+2. Direct the user to the DingTalk desktop client's **target group → group settings → robot / smart group assistant → custom robot details**, and explain **where to copy the full Webhook** (`https://oapi.dingtalk.com/robot/send?access_token=...`). Link the [DingTalk official custom-robot docs](https://open.dingtalk.com/document/orgapp/custom-robot-access).
+3. Explain that the robot's **Security Settings → Signing (加签)** shows the **`SEC...` secret** if signing is enabled, and that the **keyword** is one of the words configured under **Custom Keywords (自定义关键词)**. Never confuse these with `AppKey`/`AppSecret` or print/prompt for them in chat.
+4. Show the local `install.py --configure` command to enter credentials privately; then show `notify.py --test` (sends a real message), and explain that a new **local Codex** session must be started to verify automatic notification.
+5. Accurately report whether the trigger was registered/skipped, whether private credentials were configured, and whether a test was *actually* sent. Never declare setup successful based on Skill installation alone.
+
+Read and follow [references/DINGTALK_SETUP.md](references/DINGTALK_SETUP.md) for the complete, current-facing guide and official links. Do not omit this post-install explanation even when the user gives only the GitHub link.
 
 See the repository [README](../../README.md) for complete human-facing instructions.
+
+## macOS Codex desktop: experimental approval probe
+
+For requests to **test** whether 5-second pending approvals are detectable in the macOS Codex desktop App, use `scripts/run-approval-probe.sh --self-test`, then `scripts/run-approval-probe.sh --watch` in an **independent local Terminal**. Have the user grant Accessibility permission manually and create a real approval in Codex. Inspect only read-only `approval_detected`, `approval_pending_5s`, and `approval_cleared` events. Consult [references/MACOS_APPROVAL_PROBE.md](references/MACOS_APPROVAL_PROBE.md) for the acceptance matrix.
+
+This probe is **not installed or enabled automatically** by `install.py`, does not touch lifecycle notification hooks, and never sends to DingTalk. Do not claim 5-second approval alerts are supported until the user completes real macOS App acceptance testing.
 
 ## Safety and event contract
 
