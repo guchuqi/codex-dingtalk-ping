@@ -176,6 +176,20 @@ def remove_own_stop_hook(hooks_file: Path, script: Path) -> bool:
     return removed
 
 
+def print_setup_guide() -> None:
+    """Print actionable instructions even for noninteractive Codex installations."""
+    print("\\n--- 安装后必读：钉钉机器人配置指引 ---")
+    print("1. 仅支持已有旧版群自定义机器人；不支持企业应用机器人。")
+    print("   官方教程：https://open.dingtalk.com/document/orgapp/custom-robot-access")
+    print("   下线公告：https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice")
+    print("2. 钉钉电脑端 → 目标群 → 群设置 → 智能群助手/机器人 → 自定义机器人设置。")
+    print("3. 在设置里复制完整 Webhook：https://oapi.dingtalk.com/robot/send?access_token=...")
+    print("   在安全设置查看加签 SEC... 密钥或已配置的关键词；未启用则留空。")
+    print("   Webhook/密钥只在自己的私密本地终端填写，不要发进 Codex 聊天。")
+    print("4. 使用下方 --configure 命令录入，再用 --test 命令发真实测试消息。")
+    print(f"   完整指南：{Path(__file__).resolve().parent.parent / 'references' / 'DINGTALK_SETUP.md'}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="安装和配置 Codex DingTalk Ping")
     parser.add_argument("--method", choices=("notify", "hook"), default="notify",
@@ -228,6 +242,7 @@ def main() -> int:
                     print("已停用本 Skill 旧 notify，避免重复通知")
             result = configure_stop_hook(codex / "hooks.json", script, sys.executable)
         print(result)
+        print_setup_guide()
         print(f"私密配置命令：{sys.executable} {script.parent / 'install.py'} --configure")
         print(f"测试发送命令：{sys.executable} {script} --test")
         print("重新开启一个 Codex 本地会话后，测试自动通知是否触发。纯 Codex Cloud 不支持本地触发。")
