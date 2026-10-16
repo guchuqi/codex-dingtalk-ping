@@ -25,6 +25,19 @@ python3 "${CODEX_HOME:-$HOME/.codex}/skills/codex-dingtalk-ping/scripts/install.
 
 The command registers Codex's task-end notification trigger and safely preserves unrelated existing settings. **It intentionally does not ask for credentials from a noninteractive agent shell.**
 
+## After installation: configure your DingTalk robot / 安装后配置指引
+
+**Codex must proactively explain these steps after installation.** This Skill supports existing legacy custom **group** robots, not enterprise application robots. DingTalk has announced that new legacy custom robots are no longer available; see the [official notice](https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice).
+
+1. 在钉钉电脑端打开接收通知的群 → **群设置 → 智能群助手 / 机器人** → 找到已有的**自定义机器人** → 机器人设置 / 详情。
+2. 在机器人详情中复制完整 **Webhook**，格式为 `https://oapi.dingtalk.com/robot/send?access_token=...`。这是私密信息，不能发到 Codex 聊天或公开仓库。
+3. 在同一个机器人的 **安全设置 → 加签** 中，复制 `SEC...` **密钥**（只有开启加签时才需要）；如果启用了**自定义关键词**，记下其中一个已经设置的关键词。不要把企业应用的 AppSecret 当作加签密钥。
+4. 在自己的私密本地终端运行下一节的 `install.py --configure`，然后执行 `notify.py --test`。确认群内收到消息后，重新开启本地 Codex 会话验证自动通知。
+
+官方参考：[自定义机器人说明](https://open.dingtalk.com/document/orgapp/custom-robot-access) · [旧版机器人下线公告](https://open.dingtalk.com/document/orgapp/webhook-bot-offline-notice)。
+
+完整操作流程见 [DINGTALK_SETUP.md](skills/codex-dingtalk-ping/references/DINGTALK_SETUP.md)。
+
 ## One-time private DingTalk setup / 首次配置 Webhook
 
 **Run this yourself in a local terminal** (not in Codex chat):
